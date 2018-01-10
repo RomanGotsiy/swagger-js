@@ -102,10 +102,15 @@ export function buildRequest({
   arrayOrEmpty(operation.parameters) // operation parameters
     .concat(arrayOrEmpty(spec.paths[pathName].parameters)) // path parameters
     .forEach((parameter) => {
+      const paramPrefix = '#/parameters/'
+      if (parameter.$ref && parameter.$ref.substr(0, paramPrefix.length) === paramPrefix) {
+        const name = parameter.$ref.substr(paramPrefix.length)
+        parameter = spec.parameters && spec.parameters[name] || {}
+      }
       const builder = parameterBuilders[parameter.in]
       let value
 
-      if(parameter.in === 'body' && parameter.schema && parameter.schema.properties) {
+      if (parameter.in === 'body' && parameter.schema && parameter.schema.properties) {
         value = parameters
       }
 
